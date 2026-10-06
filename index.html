@@ -218,4 +218,25 @@
       if (userSpins > 0) {
         btnText.innerText = "Крутить ещё!";
       } else {
-        btnText.innerHTML
+        btnText.innerHTML = 'Купить прокрут за 10 <span style="color:#FFD700">⭐</span>';
+      }
+
+      document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    function handleModalAction() {
+      document.getElementById('resultModal').style.display = 'none';
+      if (userSpins > 0) {
+        startSpin();
+      } else {
+        tg.sendData(JSON.stringify({ action: "buy_spin" }));
+        setTimeout(() => { tg.close(); }, 100);
+      }
+    }
+
+    function inviteFriend() {
+      tg.openTelegramLink("https://t.me/share/url?url=https://t.me/ParadoxTopbot");
+    }
+  </script>
+</body>
+</html>

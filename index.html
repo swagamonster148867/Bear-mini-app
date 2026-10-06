@@ -10,186 +10,58 @@
     body {
       background-color: #121019;
       color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 20px 16px;
-      overflow-x: hidden;
     }
     .header-title {
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      font-size: 26px; font-weight: 900; text-transform: uppercase;
       background: linear-gradient(180deg, #FFFFFF 0%, #B8A8FE 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       margin-top: 10px;
-      text-align: center;
     }
-    .header-sub {
-      font-size: 13px;
-      color: #8E8B9E;
-      margin-top: 4px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .wheel-wrapper {
-      position: relative;
-      width: 280px;
-      height: 280px;
-      margin: 10px 0;
-    }
-    .badge-chance {
-      position: absolute;
-      top: 0px;
-      right: -5px;
-      background: #252136;
-      border: 1px solid #3B3456;
-      color: #B2B0C0;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 12px;
-      z-index: 5;
-    }
+    .header-sub { font-size: 13px; color: #8E8B9E; margin: 4px 0 15px; }
+    .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 10px 0; }
     .wheel-container {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 6px solid #8D73E0;
-      position: relative;
-      overflow: hidden;
+      width: 100%; height: 100%; border-radius: 50%; border: 6px solid #8D73E0;
+      position: relative; overflow: hidden;
       transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1);
-      background: #DCD3FD;
-      box-shadow: 0 0 25px rgba(141, 115, 224, 0.3);
+      background: #DCD3FD; box-shadow: 0 0 25px rgba(141, 115, 224, 0.3);
     }
     .wheel-pointer {
-      position: absolute;
-      right: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 28px;
-      height: 28px;
-      background: #8D73E0;
-      clip-path: polygon(100% 50%, 0 0, 0 100%);
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 28px; background: #8D73E0;
+      clip-path: polygon(100% 50%, 0 0, 0 100%); z-index: 10;
     }
-    .wheel-pointer::after {
-      content: "★";
-      color: #FFF;
-      font-size: 11px;
-      margin-left: -10px;
-    }
-    .streak-box {
-      width: 100%;
-      max-width: 340px;
-      margin-top: 15px;
-    }
-    .streak-title {
-      font-size: 12px;
-      color: #7E7B91;
-      margin-bottom: 6px;
-    }
-    .streak-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-      background: #1C1926;
-      padding: 6px;
-      border-radius: 14px;
-      text-align: center;
-    }
-    .day-item {
-      font-size: 10px;
-      color: #7E7B91;
-      padding: 6px 2px;
-      border-radius: 8px;
-    }
-    .day-item.active {
-      background: #FFFFFF;
-      color: #4A30A0;
-      font-weight: bold;
-    }
-    .gifts-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 12px;
-      background: #1C1926;
-      padding: 10px;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 340px;
-    }
-    .gift-icon { font-size: 22px; }
-    .spins-left {
-      margin-top: 15px;
-      font-size: 13px;
-      color: #928FA4;
-    }
+    .spins-left { margin-top: 15px; font-size: 14px; color: #928FA4; }
     .btn-main {
-      width: 100%;
-      max-width: 340px;
-      height: 48px;
-      background: #6C38CC;
-      color: #FFFFFF;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 10px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(108, 56, 204, 0.4);
+      width: 100%; max-width: 340px; height: 48px; background: #6C38CC;
+      color: #FFF; border: none; border-radius: 14px; font-size: 16px;
+      font-weight: bold; margin-top: 15px; cursor: pointer;
     }
+    .btn-main:disabled { background: #39354A; color: #777; cursor: not-allowed; }
+    
+    /* Модалка результатов */
     .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85); display: none;
+      align-items: center; justify-content: center; z-index: 100;
+      padding: 20px;
     }
     .modal-card {
-      width: 100%;
-      max-width: 400px;
-      background: #1C1926;
-      border-top-left-radius: 24px;
-      border-top-right-radius: 24px;
-      padding: 24px 20px 30px 20px;
-      text-align: center;
-    }
-    .duck-img { font-size: 56px; margin-bottom: 10px; }
-    .modal-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
-    .modal-sub { font-size: 13px; color: #9A97A9; margin-bottom: 12px; }
-    .modal-desc { font-size: 12px; color: #7B788B; line-height: 1.4; margin-bottom: 18px; }
-    .btn-spin-stars {
-      width: 100%;
-      height: 48px;
-      background: #2B273A;
+      width: 100%; max-width: 320px; background: #1C1926;
+      border-radius: 20px; padding: 24px; text-align: center;
       border: 1px solid #3D3850;
-      border-radius: 12px;
-      color: #FFF;
-      font-weight: bold;
-      font-size: 14px;
-      margin-bottom: 10px;
-      cursor: pointer;
     }
-    .btn-invite {
-      width: 100%;
-      height: 48px;
-      background: #6C38CC;
-      border: none;
-      border-radius: 12px;
-      color: #FFF;
-      font-weight: bold;
-      font-size: 14px;
-      cursor: pointer;
+    .modal-icon { font-size: 48px; margin-bottom: 10px; }
+    .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
+    .modal-desc { font-size: 14px; color: #AAA; margin-bottom: 20px; line-height: 1.4; }
+    .btn-close {
+      width: 100%; height: 44px; background: #6C38CC; border: none;
+      border-radius: 12px; color: #FFF; font-weight: bold; cursor: pointer;
     }
   </style>
 </head>
@@ -199,78 +71,47 @@
   <div class="header-sub">И выигрывай подарки бесплатно</div>
 
   <div class="wheel-wrapper">
-    <div class="badge-chance">Шанс 15%</div>
     <div class="wheel-pointer"></div>
     <div class="wheel-container" id="wheel">
       <canvas id="wheelCanvas" width="280" height="280"></canvas>
     </div>
   </div>
 
-  <div class="streak-box">
-    <div class="streak-title">Серия наград</div>
-    <div class="streak-days">
-      <div class="day-item active">1д: +1</div>
-      <div class="day-item">2д: +1</div>
-      <div class="day-item">3д: +2</div>
-      <div class="day-item">4д: +1</div>
-      <div class="day-item">5д: +1</div>
-      <div class="day-item">6д: +1</div>
-      <div class="day-item">7д: +2</div>
-    </div>
-  </div>
-
-  <div class="gifts-row">
-    <span class="gift-icon">🐻</span>
-    <span class="gift-icon">💖</span>
-    <span class="gift-icon">🎁</span>
-    <span class="gift-icon">🌹</span>
-    <span class="gift-icon">🎂</span>
-  </div>
-
   <div class="spins-left">Доступно прокрутов: <span id="spinsCount">1</span></div>
   <button class="btn-main" id="spinBtn" onclick="startSpin()">Крутить!</button>
 
-  <div class="modal-overlay" id="lossModal">
+  <div class="modal-overlay" id="resultModal">
     <div class="modal-card">
-      <div class="duck-img">🐥</div>
-      <div class="modal-title">УПС..</div>
-      <div class="modal-sub">Попытки закончились</div>
-      <div class="modal-desc">
-        Возвращайся завтра за бесплатным спином или крути прямо сейчас за звезды!
-      </div>
-      <button class="btn-spin-stars" onclick="spinForStars()">Крутить сейчас за 10 ⭐</button>
-      <button class="btn-invite" onclick="inviteFriend()">Пригласить друга (+1 спин)</button>
+      <div class="modal-icon" id="resIcon">🎁</div>
+      <div class="modal-title" id="resTitle">Результат</div>
+      <div class="modal-desc" id="resDesc">Описание</div>
+      <button class="btn-close" onclick="closeModal()">Отлично</button>
     </div>
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    tg.ready(); tg.expand();
 
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
-    const segments = ['Пусто!', '🎂', 'NFT', '🏆', 'Пусто!', '🎁', '★ Premium', '🐻'];
+    const segments = ['Пусто', '🎂', 'NFT', '🏆', 'Пусто', '🎁', '★ Star', '🐻'];
     const colors = ['#FFFFFF', '#EFE9FE', '#C3B1FF', '#EFE9FE', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
 
     function drawWheel() {
       const numSegments = segments.length;
       const angleArc = (2 * Math.PI) / numSegments;
       const radius = 140;
-
       for (let i = 0; i < numSegments; i++) {
         const angle = i * angleArc;
-        ctx.beginPath();
-        ctx.fillStyle = colors[i];
+        ctx.beginPath(); ctx.fillStyle = colors[i];
         ctx.moveTo(radius, radius);
         ctx.arc(radius, radius, radius, angle, angle + angleArc);
         ctx.fill();
-
         ctx.save();
         ctx.translate(radius, radius);
         ctx.rotate(angle + angleArc / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#4A30A0";
+        ctx.textAlign = "right"; ctx.fillStyle = "#4A30A0";
         ctx.font = "bold 12px sans-serif";
         ctx.fillText(segments[i], radius - 18, 4);
         ctx.restore();
@@ -278,46 +119,58 @@
     }
     drawWheel();
 
-    let spinsLeft = 1;
     let isSpinning = false;
     let currentRotation = 0;
 
     function startSpin() {
       if (isSpinning) return;
-
-      if (spinsLeft <= 0) {
-        document.getElementById('lossModal').style.display = 'flex';
-        return;
-      }
-
       isSpinning = true;
-      spinsLeft--;
-      document.getElementById('spinsCount').innerText = spinsLeft;
+      document.getElementById('spinBtn').disabled = true;
+
+      // Получаем данные пользователя из Telegram
+      const initData = tg.initData || "";
+      const userId = tg.initDataUnsafe?.user?.id || 0;
 
       currentRotation += 360 * 5 + Math.floor(Math.random() * 360);
       document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         isSpinning = false;
-        try {
-          tg.sendData(JSON.stringify({ action: "spin_free" }));
-        } catch (e) {
-          console.error(e);
+        document.getElementById('spinBtn').disabled = false;
+
+        // Генерация случайного приза на клиенте для визуализации и отправка на сервер
+        const rand = Math.random() * 100;
+        let winItem = "Пусто";
+        let winIcon = "😔";
+        let winText = "В этот раз не повезло. Попробуй завтра!";
+
+        if (rand <= 0.05) {
+          winItem = "💎 Алмаз"; winIcon = "💎";
+          winText = "ОГО! Вы выиграли редчайший Алмаз! Напишите админу @peredoz08";
+        } else if (rand <= 0.15) {
+          winItem = "🖼️ NFT Star Gift"; winIcon = "🖼️";
+          winText = "ПОЗДРАВЛЯЕМ! Вы выбили NFT! Напишите админу @peredoz08";
+        } else if (rand <= 0.65) {
+          winItem = "🌹 Роза"; winIcon = "🌹";
+          winText = "Вы выиграли Розу!";
+        } else if (rand <= 1.65) {
+          winItem = "🐻 Мишка"; winIcon = "🐻";
+          winText = "Вы выиграли Мишку!";
+        } else if (rand <= 6.65) {
+          winItem = "⭐ 10 Звезд"; winIcon = "⭐";
+          winText = "Вам начислено +10 Звёзд!";
         }
-      }, 4200);
+
+        document.getElementById('resIcon').innerText = winIcon;
+        document.getElementById('resTitle').innerText = winItem;
+        document.getElementById('resDesc').innerText = winText;
+        document.getElementById('resultModal').style.display = 'flex';
+
+      }, 4100);
     }
 
-    function spinForStars() {
-      document.getElementById('lossModal').style.display = 'none';
-      try {
-        tg.sendData(JSON.stringify({ action: "spin_stars" }));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function inviteFriend() {
-      tg.openTelegramLink("https://t.me/share/url?url=https://t.me/GiftBearsBot");
+    function closeModal() {
+      document.getElementById('resultModal').style.display = 'none';
     }
   </script>
 </body>

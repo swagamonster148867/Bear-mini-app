@@ -58,7 +58,6 @@
     .btn-main.active { background: #6C38CC; }
     .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
     
-    /* Модальное окно как на скриншотах */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.85); display: none;
@@ -72,8 +71,8 @@
     }
     .modal-duck { font-size: 64px; margin-bottom: 10px; }
     .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase; }
-    .modal-desc { font-size: 13px; color: #AAA; margin-bottom: 12px; line-height: 1.4; }
-    .modal-subtext { font-size: 12px; color: #8E8B9E; margin-bottom: 20px; }
+    .modal-desc { font-size: 14px; color: #FFF; margin-bottom: 8px; font-weight: 600; }
+    .modal-subtext { font-size: 12px; color: #8E8B9E; margin-bottom: 20px; line-height: 1.4; }
     
     .btn-modal-spin {
       width: 100%; height: 46px; background: #2A2538; border: 1px solid #3D3850;
@@ -93,26 +92,25 @@
 
   <div class="wheel-wrapper">
     <div class="badge-chance">Шанс 15%</div>
-    <div class="badge-spins" id="badgeSpins">+1 спин</div>
+    <div class="badge-spins" id="badgeSpins">+0 спинов</div>
     <div class="wheel-pointer"></div>
     <div class="wheel-container" id="wheel">
       <canvas id="wheelCanvas" width="280" height="280"></canvas>
     </div>
   </div>
 
-  <div class="spins-left">Доступно прокрутов: <span id="spinsCount">1</span></div>
-  <button class="btn-main active" id="spinBtn" onclick="startSpin()">Крутить!</button>
+  <div class="spins-left">Доступно прокрутов: <span id="spinsCount">0</span></div>
+  <button class="btn-main" id="spinBtn" onclick="handleSpinAction()">Загрузка...</button>
 
-  <!-- Модалка утки -->
   <div class="modal-overlay" id="resultModal">
     <div class="modal-card">
       <div class="modal-duck" id="modalIcon">🐥</div>
       <div class="modal-title" id="modalTitle">УПС..</div>
       <div class="modal-desc" id="modalDesc">Сегодня не повезло</div>
-      <div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!</div>
+      <div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b></div>
       
-      <button class="btn-modal-spin" id="modalActionBtn" onclick="actionSpin()">
-        <span id="btnText">Крутить еще!</span>
+      <button class="btn-modal-spin" id="modalActionBtn" onclick="handleModalAction()">
+        <span id="btnText">Крутить сейчас за 10 ⭐</span>
       </button>
       <button class="btn-modal-invite" onclick="inviteFriend()">Пригласить друга</button>
     </div>
@@ -125,7 +123,6 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
     
-    // 8 секторов как на скрине: Пусто (3), Звезды (2), NFT, Мишка, Роза
     const segments = ['Пусто!', '⭐ Звезды', 'Пусто!', '🖼️ NFT', 'Пусто!', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
     const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
 
@@ -150,8 +147,9 @@
     }
     drawWheel();
 
-    let userSpins = 1;
-    let userStars = 0;
+    // Получаем количество спинов из URL параметра, передаваемого ботом
+    const urlParams = new URLSearchParams(window.location.search);
+    let userSpins = parseInt(urlParams.get('spins') || '0', 10);
     let isSpinning = false;
     let currentRotation = 0;
 
@@ -164,21 +162,32 @@
         mainBtn.innerText = "Крутить!";
         mainBtn.classList.add("active");
       } else {
-        mainBtn.innerText = "Крутить сейчас за 10 ⭐";
+        mainBtn.innerText = "Купить прокрут за 10 ⭐";
         mainBtn.classList.remove("active");
       }
     }
 
-    function startSpin() {
+    updateUI();
+
+    function handleSpinAction() {
       if (isSpinning) return;
-      
+
       if (userSpins <= 0) {
-        alert("У вас закончились бесплатные прокруты! Нужны 10 Звёзд.");
+        // Запрос счета на покупку через бота
+        tg.sendData(JSON.stringify({ action: "buy_spin" }));
+        tg.close();
         return;
       }
 
+      startSpin();
+    }
+
+    function startSpin() {
       userSpins -= 1;
       updateUI();
+
+      // Уведомляем бота об использовании спина
+      tg.sendData(JSON.stringify({ action: "use_spin" }));
 
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
@@ -192,14 +201,12 @@
 
         const rand = Math.random() * 100;
         
-        // Шансы: NFT (0.01%), Роза (0.05%), Мишка (0.2%), Звезды (2%), Пусто (97.74%)
         if (rand <= 0.01) {
           showModal("🎁", "ПОЗДРАВЛЯЕМ!", "Вы выбили NFT Star Gift!", "Напишите администратору @peredoz08 для получения.");
-        } else if (rand <= 2.01) {
-          userStars += 10;
+        } else if (rand <= 1.50) {
           showModal("⭐", "ВЫИГРЫШ!", "Вы выиграли +10 Звёзд!", "Звёзды зачислены на ваш баланс.");
         } else {
-          showModal("🐥", "УПС..", "Сегодня не повезло", "Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!");
+          showModal("🐥", "УПС..", "Сегодня не повезло", "Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b>");
         }
 
       }, 4100);
@@ -209,24 +216,25 @@
       document.getElementById('modalIcon').innerText = icon;
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalDesc').innerText = desc;
-      document.getElementById('modalSub').innerText = sub;
+      document.getElementById('modalSub').innerHTML = sub;
       
       const btnText = document.getElementById('btnText');
       if (userSpins > 0) {
         btnText.innerText = "Крутить ещё!";
       } else {
-        btnText.innerHTML = 'Крутить сейчас за 10 <span style="color:#FFD700">⭐</span>';
+        btnText.innerHTML = 'Купить прокрут за 10 <span style="color:#FFD700">⭐</span>';
       }
 
       document.getElementById('resultModal').style.display = 'flex';
     }
 
-    function actionSpin() {
+    function handleModalAction() {
       document.getElementById('resultModal').style.display = 'none';
       if (userSpins > 0) {
         startSpin();
       } else {
-        alert("Недостаточно звёзд! Выполняйте задания или приглашайте друзей.");
+        tg.sendData(JSON.stringify({ action: "buy_spin" }));
+        tg.close();
       }
     }
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Bear Bot Mini App</title>
+  <title>Paradox-Раздачи Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
@@ -15,15 +15,16 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 20px 16px;
+      padding: 16px;
     }
     .header-title {
-      font-size: 26px; font-weight: 900; text-transform: uppercase;
+      font-size: 24px; font-weight: 900; text-transform: uppercase;
       background: linear-gradient(180deg, #FFFFFF 0%, #B8A8FE 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      margin-top: 10px;
+      margin-top: 5px;
     }
     .header-sub { font-size: 13px; color: #8E8B9E; margin: 4px 0 15px; }
+    
     .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 10px 0; }
     .wheel-container {
       width: 100%; height: 100%; border-radius: 50%; border: 6px solid #8D73E0;
@@ -36,30 +37,51 @@
       width: 28px; height: 28px; background: #8D73E0;
       clip-path: polygon(100% 50%, 0 0, 0 100%); z-index: 10;
     }
-    .spins-left { margin-top: 15px; font-size: 14px; color: #928FA4; }
+    
+    .badge-chance {
+      position: absolute; top: -10px; right: 0;
+      background: #2A2538; padding: 4px 10px; border-radius: 12px;
+      font-size: 11px; color: #AAA; border: 1px solid #3D3850;
+    }
+    .badge-spins {
+      position: absolute; top: 20px; right: 0;
+      background: #6C38CC; padding: 4px 10px; border-radius: 12px;
+      font-size: 11px; color: #FFF; font-weight: bold;
+    }
+
+    .spins-left { margin-top: 15px; font-size: 13px; color: #928FA4; }
     .btn-main {
-      width: 100%; max-width: 340px; height: 48px; background: #6C38CC;
+      width: 100%; max-width: 340px; height: 48px; background: #3B384A;
       color: #FFF; border: none; border-radius: 14px; font-size: 16px;
       font-weight: bold; margin-top: 15px; cursor: pointer;
     }
-    .btn-main:disabled { background: #39354A; color: #777; cursor: not-allowed; }
+    .btn-main.active { background: #6C38CC; }
+    .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
     
+    /* Модальное окно как на скриншотах */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.85); display: none;
-      align-items: center; justify-content: center; z-index: 100;
-      padding: 20px;
+      align-items: flex-end; justify-content: center; z-index: 100;
     }
     .modal-card {
-      width: 100%; max-width: 320px; background: #1C1926;
-      border-radius: 20px; padding: 24px; text-align: center;
-      border: 1px solid #3D3850;
+      width: 100%; max-width: 400px; background: #1C1926;
+      border-top-left-radius: 24px; border-top-right-radius: 24px;
+      padding: 24px 20px 30px; text-align: center;
+      border-top: 1px solid #3D3850;
     }
-    .modal-icon { font-size: 48px; margin-bottom: 10px; }
-    .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
-    .modal-desc { font-size: 14px; color: #AAA; margin-bottom: 20px; line-height: 1.4; }
-    .btn-close {
-      width: 100%; height: 44px; background: #6C38CC; border: none;
+    .modal-duck { font-size: 64px; margin-bottom: 10px; }
+    .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase; }
+    .modal-desc { font-size: 13px; color: #AAA; margin-bottom: 12px; line-height: 1.4; }
+    .modal-subtext { font-size: 12px; color: #8E8B9E; margin-bottom: 20px; }
+    
+    .btn-modal-spin {
+      width: 100%; height: 46px; background: #2A2538; border: 1px solid #3D3850;
+      border-radius: 12px; color: #FFF; font-weight: bold; margin-bottom: 10px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-modal-invite {
+      width: 100%; height: 46px; background: #6C38CC; border: none;
       border-radius: 12px; color: #FFF; font-weight: bold; cursor: pointer;
     }
   </style>
@@ -70,6 +92,8 @@
   <div class="header-sub">И выигрывай подарки бесплатно</div>
 
   <div class="wheel-wrapper">
+    <div class="badge-chance">Шанс 15%</div>
+    <div class="badge-spins" id="badgeSpins">+1 спин</div>
     <div class="wheel-pointer"></div>
     <div class="wheel-container" id="wheel">
       <canvas id="wheelCanvas" width="280" height="280"></canvas>
@@ -77,14 +101,20 @@
   </div>
 
   <div class="spins-left">Доступно прокрутов: <span id="spinsCount">1</span></div>
-  <button class="btn-main" id="spinBtn" onclick="startSpin()">Крутить!</button>
+  <button class="btn-main active" id="spinBtn" onclick="startSpin()">Крутить!</button>
 
+  <!-- Модалка утки -->
   <div class="modal-overlay" id="resultModal">
     <div class="modal-card">
-      <div class="modal-icon" id="resIcon">🎁</div>
-      <div class="modal-title" id="resTitle">Результат</div>
-      <div class="modal-desc" id="resDesc">Описание</div>
-      <button class="btn-close" onclick="closeModal()">Закрыть</button>
+      <div class="modal-duck" id="modalIcon">🐥</div>
+      <div class="modal-title" id="modalTitle">УПС..</div>
+      <div class="modal-desc" id="modalDesc">Сегодня не повезло</div>
+      <div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!</div>
+      
+      <button class="btn-modal-spin" id="modalActionBtn" onclick="actionSpin()">
+        <span id="btnText">Крутить еще!</span>
+      </button>
+      <button class="btn-modal-invite" onclick="inviteFriend()">Пригласить друга</button>
     </div>
   </div>
 
@@ -95,8 +125,8 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
     
-    // 8 СЕКТОРОВ: Пусто (3 раза), Звезды (2 раза), остальные по 1 разу
-    const segments = ['Пусто ⚪', '⭐ Звезды', 'Пусто ⚪', '🖼️ NFT', 'Пусто ⚪', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
+    // 8 секторов как на скрине: Пусто (3), Звезды (2), NFT, Мишка, Роза
+    const segments = ['Пусто!', '⭐ Звезды', 'Пусто!', '🖼️ NFT', 'Пусто!', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
     const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
 
     function drawWheel() {
@@ -120,11 +150,36 @@
     }
     drawWheel();
 
+    let userSpins = 1;
+    let userStars = 0;
     let isSpinning = false;
     let currentRotation = 0;
 
+    function updateUI() {
+      document.getElementById('spinsCount').innerText = userSpins;
+      document.getElementById('badgeSpins').innerText = `+${userSpins} спин`;
+      const mainBtn = document.getElementById('spinBtn');
+      
+      if (userSpins > 0) {
+        mainBtn.innerText = "Крутить!";
+        mainBtn.classList.add("active");
+      } else {
+        mainBtn.innerText = "Крутить сейчас за 10 ⭐";
+        mainBtn.classList.remove("active");
+      }
+    }
+
     function startSpin() {
       if (isSpinning) return;
+      
+      if (userSpins <= 0) {
+        alert("У вас закончились бесплатные прокруты! Нужны 10 Звёзд.");
+        return;
+      }
+
+      userSpins -= 1;
+      updateUI();
+
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
 
@@ -135,36 +190,48 @@
         isSpinning = false;
         document.getElementById('spinBtn').disabled = false;
 
-        // ЖЕСТКИЕ ШАНСЫ (Пусто: 98%, Звезды: 1.8%, Подарки: < 0.2%)
         const rand = Math.random() * 100;
-        let winItem = "Пусто ⚪";
-        let winIcon = "😔";
-        let winText = "В этот раз не повезло! Выпало пусто.";
-
+        
+        // Шансы: NFT (0.01%), Роза (0.05%), Мишка (0.2%), Звезды (2%), Пусто (97.74%)
         if (rand <= 0.01) {
-          winItem = "🖼️️ NFT Star Gift"; winIcon = "🖼️";
-          winText = "МЕГА ВЕЗЕНИЕ! Вы выбили NFT! Напишите @peredoz08";
-        } else if (rand <= 0.05) {
-          winItem = "🌹 Роза"; winIcon = "🌹";
-          winText = "Вам выпала Роза! Напишите @peredoz08";
-        } else if (rand <= 0.20) {
-          winItem = "🐻 Мишка"; winIcon = "🐻";
-          winText = "Вам выпал Мишка! Напишите @peredoz08";
-        } else if (rand <= 2.00) {
-          winItem = "⭐ Звезды"; winIcon = "⭐";
-          winText = "Вы выиграли +10 Звезд!";
+          showModal("🎁", "ПОЗДРАВЛЯЕМ!", "Вы выбили NFT Star Gift!", "Напишите администратору @peredoz08 для получения.");
+        } else if (rand <= 2.01) {
+          userStars += 10;
+          showModal("⭐", "ВЫИГРЫШ!", "Вы выиграли +10 Звёзд!", "Звёзды зачислены на ваш баланс.");
+        } else {
+          showModal("🐥", "УПС..", "Сегодня не повезло", "Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!");
         }
-
-        document.getElementById('resIcon').innerText = winIcon;
-        document.getElementById('resTitle').innerText = winItem;
-        document.getElementById('resDesc').innerText = winText;
-        document.getElementById('resultModal').style.display = 'flex';
 
       }, 4100);
     }
 
-    function closeModal() {
+    function showModal(icon, title, desc, sub) {
+      document.getElementById('modalIcon').innerText = icon;
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalDesc').innerText = desc;
+      document.getElementById('modalSub').innerText = sub;
+      
+      const btnText = document.getElementById('btnText');
+      if (userSpins > 0) {
+        btnText.innerText = "Крутить ещё!";
+      } else {
+        btnText.innerHTML = 'Крутить сейчас за 10 <span style="color:#FFD700">⭐</span>';
+      }
+
+      document.getElementById('resultModal').style.display = 'flex';
+    }
+
+    function actionSpin() {
       document.getElementById('resultModal').style.display = 'none';
+      if (userSpins > 0) {
+        startSpin();
+      } else {
+        alert("Недостаточно звёзд! Выполняйте задания или приглашайте друзей.");
+      }
+    }
+
+    function inviteFriend() {
+      tg.openTelegramLink("https://t.me/share/url?url=https://t.me/ParadoxTopbot");
     }
   </script>
 </body>

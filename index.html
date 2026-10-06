@@ -1,70 +1,328 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bear Bot Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--tg-theme-bg-color, #181818);
-            color: var(--tg-theme-text-color, #ffffff);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .card {
-            background: var(--tg-theme-secondary-bg-color, #242424);
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-            width: 100%;
-            max-width: 320px;
-        }
-        .icon {
-            font-size: 70px;
-            margin-bottom: 10px;
-        }
-        h2 { margin: 10px 0; font-size: 22px; }
-        p { color: #aaaaaa; font-size: 14px; line-height: 1.4; margin-bottom: 20px; }
-        .spin-btn {
-            background: #2ea6ff;
-            color: #ffffff;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: bold;
-            width: 100%;
-            cursor: pointer;
-        }
-        .spin-btn:active { transform: scale(0.98); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Bear Bot Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      background-color: #121019;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 16px;
+      overflow-x: hidden;
+    }
+    .header-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #FFFFFF 0%, #B8A8FE 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .header-sub {
+      font-size: 13px;
+      color: #8E8B9E;
+      margin-top: 4px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .wheel-wrapper {
+      position: relative;
+      width: 290px;
+      height: 290px;
+      margin: 10px 0;
+    }
+    .badge-chance {
+      position: absolute;
+      top: 5px;
+      right: -10px;
+      background: #252136;
+      border: 1px solid #3B3456;
+      color: #B2B0C0;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      z-index: 5;
+    }
+    .badge-spins {
+      position: absolute;
+      top: 36px;
+      right: -15px;
+      background: #3B2D54;
+      color: #E2D0FF;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 12px;
+      z-index: 5;
+    }
+    .wheel-container {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 6px solid #8D73E0;
+      position: relative;
+      overflow: hidden;
+      transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1.2);
+      background: #DCD3FD;
+      box-shadow: 0 0 25px rgba(141, 115, 224, 0.3);
+    }
+    .wheel-pointer {
+      position: absolute;
+      right: -12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      background: #8D73E0;
+      clip-path: polygon(100% 50%, 0 0, 0 100%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wheel-pointer::after {
+      content: "★";
+      color: #FFF;
+      font-size: 12px;
+      margin-left: -12px;
+    }
+    .streak-box {
+      width: 100%;
+      max-width: 340px;
+      margin-top: 25px;
+    }
+    .streak-title {
+      font-size: 12px;
+      color: #7E7B91;
+      margin-bottom: 8px;
+    }
+    .streak-days {
+      display: flex;
+      justify-content: space-between;
+      background: #1C1926;
+      padding: 6px;
+      border-radius: 16px;
+    }
+    .day-item {
+      font-size: 12px;
+      color: #7E7B91;
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
+    .day-item.active {
+      background: #FFFFFF;
+      color: #4A30A0;
+      font-weight: bold;
+    }
+    .gifts-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+      background: #1C1926;
+      padding: 12px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 340px;
+    }
+    .gift-icon { font-size: 24px; }
+    .spins-left {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #928FA4;
+    }
+    .btn-main {
+      width: 100%;
+      max-width: 340px;
+      height: 50px;
+      background: #39354A;
+      color: #A09DB1;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    .btn-main.active {
+      background: #6C38CC;
+      color: #FFFFFF;
+      box-shadow: 0 4px 15px rgba(108, 56, 204, 0.4);
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 400px;
+      background: #1C1926;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 24px 20px 30px 20px;
+      text-align: center;
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .duck-img { font-size: 64px; margin-bottom: 10px; }
+    .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .modal-sub { font-size: 13px; color: #9A97A9; margin-bottom: 12px; }
+    .modal-desc { font-size: 12px; color: #7B788B; line-height: 1.4; margin-bottom: 20px; }
+    .btn-spin-stars {
+      width: 100%;
+      height: 48px;
+      background: #2B273A;
+      border: 1px solid #3D3850;
+      border-radius: 12px;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 15px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .btn-invite {
+      width: 100%;
+      height: 48px;
+      background: #6C38CC;
+      border: none;
+      border-radius: 12px;
+      color: #FFF;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <div class="icon">🐻</div>
-        <h2>Bear Bot Mini App</h2>
-        <p>Испытайте удачу! Выигрывайте Алмазы, NFT, Розы, Мишек и Звезды.</p>
-        <button class="spin-btn" onclick="spin()">🎰 Крутить Рулетку</button>
+
+  <div class="header-title">КРУТИ КОЛЕСО</div>
+  <div class="header-sub">И выигрывай подарки бесплатно</div>
+
+  <div class="wheel-wrapper">
+    <div class="badge-chance">Шанс 15%</div>
+    <div class="badge-spins">+2 спина</div>
+    <div class="wheel-pointer"></div>
+    <div class="wheel-container" id="wheel">
+      <canvas id="wheelCanvas" width="290" height="290"></canvas>
     </div>
+  </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+  <div class="streak-box">
+    <div class="streak-title">Серия</div>
+    <div class="streak-days">
+      <div class="day-item">1 день</div>
+      <div class="day-item">2 день</div>
+      <div class="day-item active">3 день +1</div>
+      <div class="day-item">4 день</div>
+      <div class="day-item">5 день</div>
+    </div>
+  </div>
 
-        function spin() {
-            tg.sendData("spin_roulette");
-            tg.close();
-        }
-    </script>
+  <div class="gifts-row">
+    <span class="gift-icon">🐻</span>
+    <span class="gift-icon">💖</span>
+    <span class="gift-icon">🎁</span>
+    <span class="gift-icon">🌹</span>
+    <span class="gift-icon">🎂</span>
+  </div>
+
+  <div class="spins-left">Доступно прокрутов: <span id="spinsCount">1</span></div>
+  <button class="btn-main active" id="spinBtn" onclick="startSpin()">Крутить!</button>
+
+  <div class="modal-overlay" id="lossModal">
+    <div class="modal-card">
+      <div class="duck-img">🐥</div>
+      <div class="modal-title">УПС..</div>
+      <div class="modal-sub">Сегодня не повезло</div>
+      <div class="modal-desc">
+        Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br>
+        <strong>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</strong>
+      </div>
+      <button class="btn-spin-stars" onclick="spinForStars()">Крутить сейчас за 10 ⭐</button>
+      <button class="btn-invite" onclick="inviteFriend()">Пригласить друга</button>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const segments = ['Пусто!', '🎂', 'NFT-гифт', '🏆', 'Пусто!', '🎁', '★ Premium', '🐻'];
+    const colors = ['#FFFFFF', '#EFE9FE', '#C3B1FF', '#EFE9FE', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
+
+    function drawWheel() {
+      const numSegments = segments.length;
+      const angleArc = (2 * Math.PI) / numSegments;
+      const radius = 145;
+
+      for (let i = 0; i < numSegments; i++) {
+        const angle = i * angleArc;
+        ctx.beginPath();
+        ctx.fillStyle = colors[i];
+        ctx.moveTo(radius, radius);
+        ctx.arc(radius, radius, radius, angle, angle + angleArc);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(radius, radius);
+        ctx.rotate(angle + angleArc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#4A30A0";
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText(segments[i], radius - 20, 5);
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    let isSpinning = false;
+    let spinsLeft = 1;
+
+    function startSpin() {
+      if (isSpinning || spinsLeft <= 0) return;
+      isSpinning = true;
+      spinsLeft--;
+      document.getElementById('spinsCount').innerText = spinsLeft;
+
+      const wheel = document.getElementById('wheel');
+      const randomRot = 360 * 5 + 45; 
+      wheel.style.transform = `rotate(${randomRot}deg)`;
+
+      setTimeout(() => {
+        document.getElementById('lossModal').style.display = 'flex';
+        isSpinning = false;
+      }, 4000);
+    }
+
+    function spinForStars() {
+      tg.sendData(JSON.stringify({ action: "spin_stars", amount: 10 }));
+      document.getElementById('lossModal').style.display = 'none';
+    }
+
+    function inviteFriend() {
+      tg.openTelegramLink("https://t.me/share/url?url=https://t.me/GiftBearsBot");
+    }
+  </script>
 </body>
-  
 </html>

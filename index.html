@@ -44,7 +44,6 @@
     }
     .btn-main:disabled { background: #39354A; color: #777; cursor: not-allowed; }
     
-    /* Модалка результатов */
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.85); display: none;
@@ -85,7 +84,7 @@
       <div class="modal-icon" id="resIcon">🎁</div>
       <div class="modal-title" id="resTitle">Результат</div>
       <div class="modal-desc" id="resDesc">Описание</div>
-      <button class="btn-close" onclick="closeModal()">Отлично</button>
+      <button class="btn-close" onclick="closeModal()">Закрыть</button>
     </div>
   </div>
 
@@ -95,8 +94,10 @@
 
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
-    const segments = ['Пусто', '🎂', 'NFT', '🏆', 'Пусто', '🎁', '★ Star', '🐻'];
-    const colors = ['#FFFFFF', '#EFE9FE', '#C3B1FF', '#EFE9FE', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
+    
+    // 8 СЕКТОРОВ: Пусто (3 раза), Звезды (2 раза), остальные по 1 разу
+    const segments = ['Пусто ⚪', '⭐ Звезды', 'Пусто ⚪', '🖼️ NFT', 'Пусто ⚪', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
+    const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
 
     function drawWheel() {
       const numSegments = segments.length;
@@ -112,8 +113,8 @@
         ctx.translate(radius, radius);
         ctx.rotate(angle + angleArc / 2);
         ctx.textAlign = "right"; ctx.fillStyle = "#4A30A0";
-        ctx.font = "bold 12px sans-serif";
-        ctx.fillText(segments[i], radius - 18, 4);
+        ctx.font = "bold 11px sans-serif";
+        ctx.fillText(segments[i], radius - 15, 4);
         ctx.restore();
       }
     }
@@ -127,38 +128,31 @@
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
 
-      // Получаем данные пользователя из Telegram
-      const initData = tg.initData || "";
-      const userId = tg.initDataUnsafe?.user?.id || 0;
-
       currentRotation += 360 * 5 + Math.floor(Math.random() * 360);
       document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
 
-      setTimeout(async () => {
+      setTimeout(() => {
         isSpinning = false;
         document.getElementById('spinBtn').disabled = false;
 
-        // Генерация случайного приза на клиенте для визуализации и отправка на сервер
+        // ЖЕСТКИЕ ШАНСЫ (Пусто: 98%, Звезды: 1.8%, Подарки: < 0.2%)
         const rand = Math.random() * 100;
-        let winItem = "Пусто";
+        let winItem = "Пусто ⚪";
         let winIcon = "😔";
-        let winText = "В этот раз не повезло. Попробуй завтра!";
+        let winText = "В этот раз не повезло! Выпало пусто.";
 
-        if (rand <= 0.05) {
-          winItem = "💎 Алмаз"; winIcon = "💎";
-          winText = "ОГО! Вы выиграли редчайший Алмаз! Напишите админу @peredoz08";
-        } else if (rand <= 0.15) {
-          winItem = "🖼️ NFT Star Gift"; winIcon = "🖼️";
-          winText = "ПОЗДРАВЛЯЕМ! Вы выбили NFT! Напишите админу @peredoz08";
-        } else if (rand <= 0.65) {
+        if (rand <= 0.01) {
+          winItem = "🖼️️ NFT Star Gift"; winIcon = "🖼️";
+          winText = "МЕГА ВЕЗЕНИЕ! Вы выбили NFT! Напишите @peredoz08";
+        } else if (rand <= 0.05) {
           winItem = "🌹 Роза"; winIcon = "🌹";
-          winText = "Вы выиграли Розу!";
-        } else if (rand <= 1.65) {
+          winText = "Вам выпала Роза! Напишите @peredoz08";
+        } else if (rand <= 0.20) {
           winItem = "🐻 Мишка"; winIcon = "🐻";
-          winText = "Вы выиграли Мишку!";
-        } else if (rand <= 6.65) {
-          winItem = "⭐ 10 Звезд"; winIcon = "⭐";
-          winText = "Вам начислено +10 Звёзд!";
+          winText = "Вам выпал Мишка! Напишите @peredoz08";
+        } else if (rand <= 2.00) {
+          winItem = "⭐ Звезды"; winIcon = "⭐";
+          winText = "Вы выиграли +10 Звезд!";
         }
 
         document.getElementById('resIcon').innerText = winIcon;

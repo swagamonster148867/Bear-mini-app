@@ -11,11 +11,8 @@
       background-color: #121019;
       color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh; padding: 16px;
     }
     .header-title {
       font-size: 24px; font-weight: 900; text-transform: uppercase;
@@ -110,7 +107,7 @@
       <div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b></div>
       
       <button class="btn-modal-spin" id="modalActionBtn" onclick="handleModalAction()">
-        <span id="btnText">Крутить сейчас за 10 ⭐</span>
+        <span id="btnText">Купить прокрут за 10 ⭐</span>
       </button>
       <button class="btn-modal-invite" onclick="inviteFriend()">Пригласить друга</button>
     </div>
@@ -147,7 +144,6 @@
     }
     drawWheel();
 
-    // Получаем количество спинов из URL параметра, передаваемого ботом
     const urlParams = new URLSearchParams(window.location.search);
     let userSpins = parseInt(urlParams.get('spins') || '0', 10);
     let isSpinning = false;
@@ -173,9 +169,9 @@
       if (isSpinning) return;
 
       if (userSpins <= 0) {
-        // Запрос счета на покупку через бота
+        // Отправка запроса на покупку звёзд
         tg.sendData(JSON.stringify({ action: "buy_spin" }));
-        tg.close();
+        setTimeout(() => { tg.close(); }, 100);
         return;
       }
 
@@ -186,7 +182,7 @@
       userSpins -= 1;
       updateUI();
 
-      // Уведомляем бота об использовании спина
+      // Моментально сообщаем серверу о вычитании спина
       tg.sendData(JSON.stringify({ action: "use_spin" }));
 
       isSpinning = true;
@@ -222,25 +218,4 @@
       if (userSpins > 0) {
         btnText.innerText = "Крутить ещё!";
       } else {
-        btnText.innerHTML = 'Купить прокрут за 10 <span style="color:#FFD700">⭐</span>';
-      }
-
-      document.getElementById('resultModal').style.display = 'flex';
-    }
-
-    function handleModalAction() {
-      document.getElementById('resultModal').style.display = 'none';
-      if (userSpins > 0) {
-        startSpin();
-      } else {
-        tg.sendData(JSON.stringify({ action: "buy_spin" }));
-        tg.close();
-      }
-    }
-
-    function inviteFriend() {
-      tg.openTelegramLink("https://t.me/share/url?url=https://t.me/ParadoxTopbot");
-    }
-  </script>
-</body>
-</html>
+        btnText.innerHTML

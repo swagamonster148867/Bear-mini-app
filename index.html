@@ -136,18 +136,13 @@
       width: 100%;
       max-width: 340px;
       height: 48px;
-      background: #39354A;
-      color: #A09DB1;
+      background: #6C38CC;
+      color: #FFFFFF;
       border: none;
       border-radius: 14px;
       font-size: 16px;
       font-weight: bold;
       margin-top: 10px;
-      cursor: not-allowed;
-    }
-    .btn-main.active {
-      background: #6C38CC;
-      color: #FFFFFF;
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(108, 56, 204, 0.4);
     }
@@ -233,7 +228,7 @@
   </div>
 
   <div class="spins-left">Доступно прокрутов: <span id="spinsCount">1</span></div>
-  <button class="btn-main active" id="spinBtn" onclick="startSpin()">Крутить!</button>
+  <button class="btn-main" id="spinBtn" onclick="startSpin()">Крутить!</button>
 
   <div class="modal-overlay" id="lossModal">
     <div class="modal-card">
@@ -250,6 +245,7 @@
 
   <script>
     const tg = window.Telegram.WebApp;
+    tg.ready();
     tg.expand();
 
     const canvas = document.getElementById('wheelCanvas');
@@ -303,15 +299,21 @@
 
       setTimeout(() => {
         isSpinning = false;
-        tg.sendData(JSON.stringify({ action: "spin_free" }));
-        tg.close();
-      }, 4100);
+        try {
+          tg.sendData(JSON.stringify({ action: "spin_free" }));
+        } catch (e) {
+          console.error(e);
+        }
+      }, 4200);
     }
 
     function spinForStars() {
       document.getElementById('lossModal').style.display = 'none';
-      tg.sendData(JSON.stringify({ action: "spin_stars" }));
-      tg.close();
+      try {
+        tg.sendData(JSON.stringify({ action: "spin_stars" }));
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     function inviteFriend() {

@@ -1,276 +1,501 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Paradox-Раздачи Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body {
-      background-color: #121019; color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh; padding: 16px; justify-content: space-between;
-    }
-    .header-box { text-align: center; margin-top: 10px; }
-    .header-title {
-      font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
-      background: linear-gradient(180deg, #FFFFFF 0%, #B8A8FE 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .header-sub { font-size: 13px; color: #8E8B9E; margin-top: 4px; }
-    
-    .wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px 0; }
-    .wheel-container {
-      width: 100%; height: 100%; border-radius: 50%; border: 6px solid #8D73E0;
-      position: relative; overflow: hidden;
-      transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1);
-      background: #DCD3FD; box-shadow: 0 0 30px rgba(141, 115, 224, 0.35);
-    }
-    .wheel-pointer {
-      position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
-      width: 30px; height: 30px; background: #8D73E0;
-      clip-path: polygon(100% 50%, 0 0, 0 100%); z-index: 10;
-      filter: drop-shadow(-2px 0 4px rgba(0,0,0,0.5));
-    }
-    
-    .badge-chance {
-      position: absolute; top: -12px; right: 0;
-      background: #2A2538; padding: 5px 12px; border-radius: 12px;
-      font-size: 11px; color: #BBB; border: 1px solid #3D3850; font-weight: 600;
-    }
-    .badge-spins {
-      position: absolute; top: 22px; right: 0;
-      background: #6C38CC; padding: 5px 12px; border-radius: 12px;
-      font-size: 11px; color: #FFF; font-weight: bold; box-shadow: 0 2px 8px rgba(108, 56, 204, 0.4);
-    }
 
-    .spins-left { font-size: 14px; color: #928FA4; font-weight: 600; margin-bottom: 8px; }
-    .btn-main {
-      width: 100%; max-width: 340px; height: 52px; background: #3B384A;
-      color: #FFF; border: none; border-radius: 16px; font-size: 17px;
-      font-weight: 800; cursor: pointer; transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-    .btn-main.active {
-      background: linear-gradient(135deg, #8D73E0 0%, #6C38CC 100%);
-      box-shadow: 0 4px 20px rgba(108, 56, 204, 0.5);
-    }
-    .btn-main:active { transform: scale(0.98); }
-    .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
-    
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.85); display: none;
-      align-items: flex-end; justify-content: center; z-index: 100;
-      backdrop-filter: blur(4px);
-    }
-    .modal-card {
-      width: 100%; max-width: 420px; background: #1C1926;
-      border-top-left-radius: 28px; border-top-right-radius: 28px;
-      padding: 28px 20px 32px; text-align: center;
-      border-top: 1px solid #3D3850; animation: slideUp 0.3s ease-out;
-    }
-    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    
-    .modal-duck { font-size: 64px; margin-bottom: 8px; }
-    .modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase; }
-    .modal-desc { font-size: 15px; color: #FFF; margin-bottom: 10px; font-weight: 700; }
-    .modal-subtext { font-size: 13px; color: #8E8B9E; margin-bottom: 22px; line-height: 1.4; }
-    
-    .btn-modal-spin {
-      width: 100%; height: 48px; background: #2A2538; border: 1px solid #3D3850;
-      border-radius: 14px; color: #FFF; font-weight: 800; font-size: 15px;
-      margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .btn-modal-invite {
-      width: 100%; height: 48px; background: #6C38CC; border: none;
-      border-radius: 14px; color: #FFF; font-weight: 800; font-size: 15px; cursor: pointer;
-    }
-  </style>
+<html lang="ru">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<title>Paradox-Раздачи Mini App</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+body {
+
+background-color: #121019; color: #ffffff;
+
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+display: flex; flex-direction: column; align-items: center;
+
+min-height: 100vh; padding: 16px; justify-content: space-between;
+
+}
+
+.header-box { text-align: center; margin-top: 10px; }
+
+.header-title {
+
+font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+
+background: linear-gradient(180deg, #FFFFFF 0%, #B8A8FE 100%);
+
+-webkit-background-clip: text; -webkit-text-fill-color: transparent;
+
+}
+
+.header-sub { font-size: 13px; color: #8E8B9E; margin-top: 4px; }
+
+​.wheel-wrapper { position: relative; width: 280px; height: 280px; margin: 20px 0; }
+
+.wheel-container {
+
+width: 100%; height: 100%; border-radius: 50%; border: 6px solid #8D73E0;
+
+position: relative; overflow: hidden;
+
+transition: transform 4s cubic-bezier(0.15, 0.85, 0.35, 1);
+
+background: #DCD3FD; box-shadow: 0 0 30px rgba(141, 115, 224, 0.35);
+
+}
+
+.wheel-pointer {
+
+position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+
+width: 30px; height: 30px; background: #8D73E0;
+
+clip-path: polygon(100% 50%, 0 0, 0 100%); z-index: 10;
+
+filter: drop-shadow(-2px 0 4px rgba(0,0,0,0.5));
+
+}
+
+​.badge-chance {
+
+position: absolute; top: -12px; right: 0;
+
+background: #2A2538; padding: 5px 12px; border-radius: 12px;
+
+font-size: 11px; color: #BBB; border: 1px solid #3D3850; font-weight: 600;
+
+}
+
+.badge-spins {
+
+position: absolute; top: 22px; right: 0;
+
+background: #6C38CC; padding: 5px 12px; border-radius: 12px;
+
+font-size: 11px; color: #FFF; font-weight: bold; box-shadow: 0 2px 8px rgba(108, 56, 204, 0.4);
+
+}
+
+​.spins-left { font-size: 14px; color: #928FA4; font-weight: 600; margin-bottom: 8px; text-align: center; }
+
+.btn-main {
+
+width: 100%; max-width: 340px; height: 52px; background: #3B384A;
+
+color: #FFF; border: none; border-radius: 16px; font-size: 16px;
+
+font-weight: 800; cursor: pointer; transition: all 0.2s ease;
+
+box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+
+}
+
+.btn-main.active {
+
+background: linear-gradient(135deg, #8D73E0 0%, #6C38CC 100%);
+
+box-shadow: 0 4px 20px rgba(108, 56, 204, 0.5);
+
+}
+
+.btn-main:active { transform: scale(0.98); }
+
+.btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+
+​.modal-overlay {
+
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+
+background: rgba(0, 0, 0, 0.85); display: none;
+
+align-items: flex-end; justify-content: center; z-index: 100;
+
+backdrop-filter: blur(4px);
+
+}
+
+.modal-card {
+
+width: 100%; max-width: 420px; background: #1C1926;
+
+border-top-left-radius: 28px; border-top-right-radius: 28px;
+
+padding: 28px 20px 32px; text-align: center;
+
+border-top: 1px solid #3D3850; animation: slideUp 0.3s ease-out;
+
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+​.modal-duck { font-size: 64px; margin-bottom: 8px; }
+
+.modal-title { font-size: 22px; font-weight: 900; margin-bottom: 6px; text-transform: uppercase; }
+
+.modal-desc { font-size: 15px; color: #FFF; margin-bottom: 10px; font-weight: 700; }
+
+.modal-subtext { font-size: 13px; color: #8E8B9E; margin-bottom: 22px; line-height: 1.4; }
+
+​.btn-modal-spin {
+
+width: 100%; height: 48px; background: #2A2538; border: 1px solid #3D3850;
+
+border-radius: 14px; color: #FFF; font-weight: 800; font-size: 14px;
+
+margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+
+}
+
+.btn-modal-invite {
+
+width: 100%; height: 48px; background: #6C38CC; border: none;
+
+border-radius: 14px; color: #FFF; font-weight: 800; font-size: 15px; cursor: pointer;
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-  <div class="header-box">
-    <div class="header-title">КРУТИ КОЛЕСО</div>
-    <div class="header-sub">И выигрывай подарки бесплатно</div>
-  </div>
+​<div class="header-box">
 
-  <div class="wheel-wrapper">
-    <div class="badge-chance">Шанс 15%</div>
-    <div class="badge-spins" id="badgeSpins">+0 спинов</div>
-    <div class="wheel-pointer"></div>
-    <div class="wheel-container" id="wheel">
-      <canvas id="wheelCanvas" width="280" height="280"></canvas>
-    </div>
-  </div>
+<div class="header-title">КРУТИ КОЛЕСО</div>
 
-  <div style="width: 100%; text-align: center;">
-    <div class="spins-left">Доступно прокрутов: <span id="spinsCount">0</span></div>
-    <button class="btn-main" id="spinBtn" onclick="handleSpinAction()">Загрузка...</button>
-  </div>
+<div class="header-sub">И выигрывай подарки бесплатно</div>
 
-  <div class="modal-overlay" id="resultModal">
-    <div class="modal-card">
-      <div class="modal-duck" id="modalIcon">🐥</div>
-      <div class="modal-title" id="modalTitle">УПС..</div>
-      <div class="modal-desc" id="modalDesc">Сегодня не повезло</div>
-      <div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b></div>
-      
-      <button class="btn-modal-spin" id="modalActionBtn" onclick="handleModalAction()">
-        <span id="btnText">Купить прокрут за 10 ⭐</span>
-      </button>
-      <button class="btn-modal-invite" onclick="inviteFriend()">Пригласить друга</button>
-    </div>
-  </div>
+</div>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready(); tg.expand();
+​<div class="wheel-wrapper">
 
-    const canvas = document.getElementById('wheelCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // 8 СЕКТОРОВ
-    const segments = ['Пусто!', '⭐ Звезды', 'Пусто!', '🖼️ NFT', 'Пусто!', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
-    const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
+<div class="badge-chance" id="chanceLabel">Шанс 15%</div>
 
-    function drawWheel() {
-      const numSegments = segments.length;
-      const angleArc = (2 * Math.PI) / numSegments;
-      const radius = 140;
-      for (let i = 0; i < numSegments; i++) {
-        const angle = i * angleArc;
-        ctx.beginPath(); ctx.fillStyle = colors[i];
-        ctx.moveTo(radius, radius);
-        ctx.arc(radius, radius, radius, angle, angle + angleArc);
-        ctx.fill();
-        ctx.save();
-        ctx.translate(radius, radius);
-        ctx.rotate(angle + angleArc / 2);
-        ctx.textAlign = "right"; ctx.fillStyle = "#4A30A0";
-        ctx.font = "bold 11px sans-serif";
-        ctx.fillText(segments[i], radius - 15, 4);
-        ctx.restore();
-      }
-    }
-    drawWheel();
+<div class="badge-spins" id="badgeSpins">+0 спинов</div>
 
-    const urlParams = new URLSearchParams(window.location.search);
-    let userSpins = parseInt(urlParams.get('spins') || '0', 10);
-    const botUsername = urlParams.get('bot') || 'ParadoxTopbot';
-    
-    let isSpinning = false;
-    let currentRotation = 0;
+<div class="wheel-pointer"></div>
 
-    function updateUI() {
-      document.getElementById('spinsCount').innerText = userSpins;
-      document.getElementById('badgeSpins').innerText = `+${userSpins} спин`;
-      const mainBtn = document.getElementById('spinBtn');
-      
-      if (userSpins > 0) {
-        mainBtn.innerText = "Крутить!";
-        mainBtn.classList.add("active");
-      } else {
-        mainBtn.innerText = "Купить прокрут за 10 ⭐";
-        mainBtn.classList.remove("active");
-      }
-    }
+<div class="wheel-container" id="wheel">
 
-    updateUI();
+<canvas id="wheelCanvas" width="280" height="280"></canvas>
 
-    function handleSpinAction() {
-      if (isSpinning) return;
+</div>
 
-      if (userSpins <= 0) {
-        redirectToBuy();
-        return;
-      }
+</div>
 
-      startSpin();
-    }
+​<div style="width: 100%; text-align: center;">
 
-    function redirectToBuy() {
-      tg.openTelegramLink(`https://t.me/${botUsername}?start=buy_spin`);
-    }
+<div class="spins-left">Доступно прокрутов: <span id="spinsCount">0</span></div>
 
-    function startSpin() {
-      userSpins -= 1;
-      updateUI();
+<button class="btn-main" id="spinBtn" onclick="handleSpinAction()">Загрузка...</button>
 
-      isSpinning = true;
-      document.getElementById('spinBtn').disabled = true;
+</div>
 
-      // Определение выигрыша (рандом)
-      const rand = Math.random() * 100;
-      let targetIndex = 0; 
+​<div class="modal-overlay" id="resultModal">
 
-      if (rand <= 0.1) {
-        targetIndex = 3; // NFT
-      } else if (rand <= 2.0) {
-        targetIndex = 1; // Звезды
-      } else {
-        const emptyIndexes = [0, 2, 4];
-        targetIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
-      }
+<div class="modal-card">
 
-      // Расчет точного угла остановки на секторе targetIndex
-      const numSegments = segments.length;
-      const segmentAngle = 360 / numSegments;
-      
-      // Указатель находится на 0 градусов (справа)
-      const targetDegree = 360 - (targetIndex * segmentAngle + segmentAngle / 2);
-      const extraRounds = 360 * 5; 
-      
-      const currentMod = currentRotation % 360;
-      currentRotation += (extraRounds + (targetDegree - currentMod + 360) % 360);
+<div class="modal-duck" id="modalIcon">🐥</div>
 
-      document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+<div class="modal-title" id="modalTitle">УПС..</div>
 
-      setTimeout(() => {
-        isSpinning = false;
-        document.getElementById('spinBtn').disabled = false;
+<div class="modal-desc" id="modalDesc">Сегодня не повезло</div>
 
-        if (targetIndex === 3) {
-          showModal("🎁", "ПОЗДРАВЛЯЕМ!", "Вы выбили NFT Star Gift!", "Напишите администратору @peredoz08 для получения.");
-        } else if (targetIndex === 1 || targetIndex === 6) {
-          showModal("⭐", "ВЫИГРЫШ!", "Вы выиграли +10 Звёзд!", "Звёзды зачислены на ваш баланс.");
-        } else {
-          showModal("🐥", "УПС..", "Сегодня не повезло", "Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b>");
-        }
+<div class="modal-subtext" id="modalSub">Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!
 
-      }, 4100);
-    }
 
-    function showModal(icon, title, desc, sub) {
-      document.getElementById('modalIcon').innerText = icon;
-      document.getElementById('modalTitle').innerText = title;
-      document.getElementById('modalDesc').innerText = desc;
-      document.getElementById('modalSub').innerHTML = sub;
-      
-      const btnText = document.getElementById('btnText');
-      if (userSpins > 0) {
-        btnText.innerText = "Крутить ещё!";
-      } else {
-        btnText.innerHTML = 'Купить прокрут за 10 <span style="color:#FFD700">⭐</span>';
-      }
+<b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b></div>
 
-      document.getElementById('resultModal').style.display = 'flex';
-    }
+​<button class="btn-modal-spin" id="modalActionBtn" onclick="handleModalAction()">
 
-    function handleModalAction() {
-      document.getElementById('resultModal').style.display = 'none';
-      if (userSpins > 0) {
-        startSpin();
-      } else {
-        redirectToBuy();
-      }
-    }
+<span id="btnText">Купить прокрут за 13 ⭐</span>
 
-    function inviteFriend() {
-      tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/${botUsername}`);
-    }
-  </script>
+</button>
+
+<button class="btn-modal-invite" onclick="inviteFriend()">Пригласить друга</button>
+
+</div>
+
+</div>
+
+​<script>
+
+const tg = window.Telegram.WebApp;
+
+tg.ready(); tg.expand();
+
+​const canvas = document.getElementById('wheelCanvas');
+
+const ctx = canvas.getContext('2d');
+
+​const segments = ['Пусто!', '⭐ Звезды', 'Пусто!', '🖼️ NFT', 'Пусто!', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
+
+const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
+
+​function drawWheel() {
+
+const numSegments = segments.length;
+
+const angleArc = (2 * Math.PI) / numSegments;
+
+const radius = 140;
+
+for (let i = 0; i < numSegments; i++) {
+
+const angle = i * angleArc;
+
+ctx.beginPath(); ctx.fillStyle = colors[i];
+
+ctx.moveTo(radius, radius);
+
+ctx.arc(radius, radius, radius, angle, angle + angleArc);
+
+ctx.fill();
+
+ctx.save();
+
+ctx.translate(radius, radius);
+
+ctx.rotate(angle + angleArc / 2);
+
+ctx.textAlign = "right"; ctx.fillStyle = "#4A30A0";
+
+ctx.font = "bold 11px sans-serif";
+
+ctx.fillText(segments[i], radius - 15, 4);
+
+ctx.restore();
+
+}
+
+}
+
+drawWheel();
+
+​const urlParams = new URLSearchParams(window.location.search);
+
+const userId = urlParams.get('uid') || 'guest';
+
+let serverSpins = parseInt(urlParams.get('spins') || '0', 10);
+
+let winChance = parseFloat(urlParams.get('chance') || '15');
+
+​document.getElementById('chanceLabel').innerText = Шанс ${winChance}%;
+
+​// Локальное отслеживание попыток
+
+const storageKey = paradox_spins_${userId};
+
+let userSpins = localStorage.getItem(storageKey) !== null
+
+? parseInt(localStorage.getItem(storageKey), 10)
+
+: serverSpins;
+
+​// Если сервер явно прислал новые прокруты (выданные админом)
+
+if (serverSpins > userSpins) {
+
+userSpins = serverSpins;
+
+localStorage.setItem(storageKey, userSpins);
+
+}
+
+​let isSpinning = false;
+
+let currentRotation = 0;
+
+​function updateUI() {
+
+localStorage.setItem(storageKey, userSpins);
+
+document.getElementById('spinsCount').innerText = userSpins;
+
+document.getElementById('badgeSpins').innerText = +${userSpins} спин;
+
+const mainBtn = document.getElementById('spinBtn');
+
+​if (userSpins > 0) {
+
+mainBtn.innerText = "Крутить!";
+
+mainBtn.classList.add("active");
+
+} else {
+
+mainBtn.innerText = "Купить прокрут за 13 ⭐";
+
+mainBtn.classList.remove("active");
+
+}
+
+}
+
+​updateUI();
+
+​function handleSpinAction() {
+
+if (isSpinning) return;
+
+​if (userSpins <= 0) {
+
+redirectToBuy();
+
+return;
+
+}
+
+​startSpin();
+
+}
+
+​function redirectToBuy() {
+
+tg.openTelegramLink("https://t.me/Peredoz08?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D1%85%D0%BE%D1%87%D1%83%20%D0%BA%D1%83%D0%BF%D0%B8%D1%82%D1%8C%201%20%D0%BF%D1%80%D0%BE%D0%BA%D1%80%D1%83%D1%82%20%D0%B7%D0%B0%2013%20%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4.");
+
+}
+
+​function startSpin() {
+
+userSpins -= 1;
+
+updateUI();
+
+​// Уведомляем сервер об использовании
+
+tg.sendData(JSON.stringify({ action: "spin_used", uid: userId }));
+
+​isSpinning = true;
+
+document.getElementById('spinBtn').disabled = true;
+
+​// Расчет шансов на основе индивидуального шанса игрока
+
+const rand = Math.random() * 100;
+
+let targetIndex = 0;
+
+​if (rand <= (winChance * 0.1)) {
+
+targetIndex = 3; // NFT
+
+} else if (rand <= winChance) {
+
+targetIndex = 1; // Звезды
+
+} else {
+
+const emptyIndexes = [0, 2, 4];
+
+targetIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+
+}
+
+​const numSegments = segments.length;
+
+const segmentAngle = 360 / numSegments;
+
+const targetDegree = 360 - (targetIndex * segmentAngle + segmentAngle / 2);
+
+const extraRounds = 360 * 5;
+
+​const currentMod = currentRotation % 360;
+
+currentRotation += (extraRounds + (targetDegree - currentMod + 360) % 360);
+
+​document.getElementById('wheel').style.transform = rotate(${currentRotation}deg);
+
+​setTimeout(() => {
+
+isSpinning = false;
+
+document.getElementById('spinBtn').disabled = false;
+
+​if (targetIndex === 3) {
+
+showModal("🎁", "ПОЗДРАВЛЯЕМ!", "Вы выбили NFT Star Gift!", "Напишите администратору @Peredoz08 для получения.");
+
+} else if (targetIndex === 1 || targetIndex === 6) {
+
+showModal("⭐", "ВЫИГРЫШ!", "Вы выиграли +10 Звёзд!", "Звёзды зачислены на ваш баланс.");
+
+} else {
+
+showModal("🐥", "УПС..", "Сегодня не повезло", "Для покупки прокрута за 13 ⭐️ напишите @Peredoz08.
+
+В течение 2 часов рулетка будет добавлена!");
+
+}
+
+​}, 4100);
+
+}
+
+​function showModal(icon, title, desc, sub) {
+
+document.getElementById('modalIcon').innerText = icon;
+
+document.getElementById('modalTitle').innerText = title;
+
+document.getElementById('modalDesc').innerText = desc;
+
+document.getElementById('modalSub').innerHTML = sub;
+
+​const btnText = document.getElementById('btnText');
+
+if (userSpins > 0) {
+
+btnText.innerText = "Крутить ещё!";
+
+} else {
+
+btnText.innerHTML = 'Купить прокрут за 13 <span style="color:#FFD700">⭐</span> (@Peredoz08)';
+
+}
+
+​document.getElementById('resultModal').style.display = 'flex';
+
+}
+
+​function handleModalAction() {
+
+document.getElementById('resultModal').style.display = 'none';
+
+if (userSpins > 0) {
+
+startSpin();
+
+} else {
+
+redirectToBuy();
+
+}
+
+}
+
+​function inviteFriend() {
+
+tg.openTelegramLink("https://t.me/share/url?url=https://t.me/ParadoxTopbot");
+
+}
+
+</script>
+
 </body>
+
 </html>
+

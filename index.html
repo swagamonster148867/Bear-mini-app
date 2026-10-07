@@ -120,6 +120,7 @@
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
     
+    // 8 СЕКТОРОВ
     const segments = ['Пусто!', '⭐ Звезды', 'Пусто!', '🖼️ NFT', 'Пусто!', '🐻 Мишка', '⭐ Звезды', '🌹 Роза'];
     const colors = ['#FFFFFF', '#EFE9FE', '#FFFFFF', '#C3B1FF', '#FFFFFF', '#EFE9FE', '#B096FF', '#EFE9FE'];
 
@@ -169,7 +170,6 @@
       if (isSpinning) return;
 
       if (userSpins <= 0) {
-        // Отправка запроса на покупку звёзд
         tg.sendData(JSON.stringify({ action: "buy_spin" }));
         setTimeout(() => { tg.close(); }, 100);
         return;
@@ -182,24 +182,48 @@
       userSpins -= 1;
       updateUI();
 
-      // Моментально сообщаем серверу о вычитании спина
       tg.sendData(JSON.stringify({ action: "use_spin" }));
 
       isSpinning = true;
       document.getElementById('spinBtn').disabled = true;
 
-      currentRotation += 360 * 5 + Math.floor(Math.random() * 360);
+      // 1. ОПРЕДЕЛЯЕМ ПРИЗ ЗАРАНЕЕ
+      const rand = Math.random() * 100;
+      let targetIndex = 0; // По умолчанию 'Пусто!' (Индекс 0)
+
+      if (rand <= 0.01) {
+        targetIndex = 3; // '🖼️ NFT'
+      } else if (rand <= 1.50) {
+        targetIndex = 1; // '⭐ Звезды'
+      } else {
+        // Попадание на пустой сектор (Индексы 0, 2, 4)
+        const emptyIndexes = [0, 2, 4];
+        targetIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+      }
+
+      // 2. РАССЧИТЫВАЕМ ТОЧНЫЙ УГОЛ ДЛЯ ОСТАНОВКИ НА СТРЕЛКЕ (Справа, 0 градусов)
+      const numSegments = segments.length;
+      const segmentAngle = 360 / numSegments;
+      
+      // Стрелка находится справа (0°). Сектор центрируется на указателе.
+      const targetDegree = 360 - (targetIndex * segmentAngle) - (segmentAngle / 2);
+      
+      // Добавляем 5 полных оборотов (360 * 5)
+      const extraRounds = 360 * 5;
+      
+      // Вычисляем следующую точку поворота
+      const currentMod = currentRotation % 360;
+      currentRotation += (extraRounds + (targetDegree - currentMod + 360) % 360);
+
       document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
 
       setTimeout(() => {
         isSpinning = false;
         document.getElementById('spinBtn').disabled = false;
 
-        const rand = Math.random() * 100;
-        
-        if (rand <= 0.01) {
+        if (targetIndex === 3) {
           showModal("🎁", "ПОЗДРАВЛЯЕМ!", "Вы выбили NFT Star Gift!", "Напишите администратору @peredoz08 для получения.");
-        } else if (rand <= 1.50) {
+        } else if (targetIndex === 1 || targetIndex === 6) {
           showModal("⭐", "ВЫИГРЫШ!", "Вы выиграли +10 Звёзд!", "Звёзды зачислены на ваш баланс.");
         } else {
           showModal("🐥", "УПС..", "Сегодня не повезло", "Возвращайся завтра в то же время. Пригласи друга и увеличь свои шансы!<br><br><b>Серия 3 дня. Ещё 4 дня — и 2 бонусных прокрута.</b>");
